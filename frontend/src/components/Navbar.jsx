@@ -32,28 +32,29 @@ export default function Navbar() {
                 to="/dashboard"
                 className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}
               >
-                <LayoutDashboard size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+                <LayoutDashboard size={14} style={{ display: 'inline', marginRight: 5, verticalAlign: 'middle' }} />
                 Dashboard
               </NavLink>
               <NavLink
                 to="/requests"
                 className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}
               >
-                <List size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+                <List size={14} style={{ display: 'inline', marginRight: 5, verticalAlign: 'middle' }} />
                 My Requests
               </NavLink>
               <NavLink
                 to="/requests/new"
                 className={({ isActive }) => `navbar-link ${isActive ? 'active' : ''}`}
               >
-                <PlusCircle size={15} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+                <PlusCircle size={14} style={{ display: 'inline', marginRight: 5, verticalAlign: 'middle' }} />
                 New Request
               </NavLink>
 
-              <div className="navbar-user" style={{ marginLeft: '8px' }}>
-                <div className="user-avatar" title={user?.name}>{initials}</div>
-                <button className="btn btn-ghost btn-sm" onClick={handleLogout} id="logout-btn">
-                  <LogOut size={15} />
+              <div className="navbar-user" style={{ marginLeft: '12px' }}>
+                <div className="user-avatar" title={user?.fullName}>{initials}</div>
+                <button className="btn btn-ghost btn-sm" onClick={handleLogout} id="logout-btn"
+                  style={{ color: 'var(--color-text-dim)' }}>
+                  <LogOut size={14} />
                   Logout
                 </button>
               </div>
