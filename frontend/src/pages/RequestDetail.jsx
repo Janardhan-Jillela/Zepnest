@@ -6,14 +6,19 @@ import Modal from '../components/Modal';
 import { PageLoader } from '../components/Loader';
 import Loader from '../components/Loader';
 import {
-  ArrowLeft, Trash2, Edit3, Upload, Clock, MapPin,
-  Tag, Calendar, CheckCircle2, X, AlertTriangle,
+  ArrowLeft, Trash2, Upload, Clock, MapPin,
+  Tag, Calendar, CheckCircle2, X, AlertTriangle, Sparkles,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const CATEGORY_ICONS = {
   cleaning: '🧹', plumbing: '🔧', electrical: '⚡',
   carpentry: '🪚', painting: '🎨', other: '✨',
+};
+
+const CAT_CLASS = {
+  cleaning: 'cat-cleaning', plumbing: 'cat-plumbing', electrical: 'cat-electrical',
+  carpentry: 'cat-carpentry', painting: 'cat-painting', other: 'cat-other',
 };
 
 const STATUS_FLOW = ['pending', 'in_progress', 'completed', 'cancelled'];
@@ -27,7 +32,10 @@ const TRANSITIONS = {
 };
 
 const STATUS_COLORS = {
-  pending: '#f59e0b', in_progress: '#3b82f6', completed: '#10b981', cancelled: '#ef4444',
+  pending: '#fbbf24',
+  in_progress: '#93c5fd',
+  completed: '#34d399',
+  cancelled: '#f87171',
 };
 
 const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
@@ -108,50 +116,52 @@ export default function RequestDetail() {
 
   return (
     <div className="page-wrapper animate-fade">
-      <div className="container" style={{ padding: '40px 24px', maxWidth: 900 }}>
-        {/* Back nav */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+      <div className="container" style={{ padding: '44px 24px', maxWidth: 920 }}>
+
+        {/* ── Breadcrumb ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '28px' }}>
           <button className="btn btn-ghost btn-sm" onClick={() => navigate('/requests')} id="back-to-requests-btn">
             <ArrowLeft size={15} />
             My Requests
           </button>
-          <span style={{ color: 'var(--color-border)', fontSize: '0.875rem' }}>/</span>
-          <span style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+          <span style={{ color: 'var(--color-border-light)', fontSize: '1rem' }}>/</span>
+          <span style={{ fontSize: '0.875rem', color: 'var(--color-text-dim)' }}>
             #{request.id} — {request.title}
           </span>
         </div>
 
-        {/* Header */}
+        {/* ── Header ── */}
         <div className="detail-header">
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '32px' }}>{CATEGORY_ICONS[request.category] || '✨'}</span>
-              <h1 style={{ fontSize: '1.625rem', fontWeight: 800, color: 'var(--color-text)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  width: 52, height: 52, borderRadius: 14,
+                  background: 'rgba(16,185,129,0.1)',
+                  border: '1px solid rgba(52,211,153,0.2)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '26px', flexShrink: 0,
+                }}
+              >
+                {CATEGORY_ICONS[request.category] || '✨'}
+              </div>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '-0.02em' }}>
                 {request.title}
               </h1>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <StatusBadge status={request.status} />
-              <span className="category-chip">{request.category}</span>
-              <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-dim)' }}>
-                Request #{request.id}
-              </span>
+              <span className={`category-chip ${CAT_CLASS[request.category] || ''}`}>{request.category}</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-text-dim)' }}>Request #{request.id}</span>
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Action buttons */}
           <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
-            {!isFinal && (
-              <Link to={`/requests/${id}/edit`} className="btn btn-secondary btn-sm" id="edit-btn">
-                <Edit3 size={14} />
-                Edit
-              </Link>
-            )}
             <label
               htmlFor="detail-image-upload"
               className="btn btn-secondary btn-sm"
               style={{ cursor: 'pointer' }}
-              title="Upload image"
               id="upload-image-label"
             >
               {uploading ? <Loader size="sm" /> : <Upload size={14} />}
@@ -167,9 +177,11 @@ export default function RequestDetail() {
           </div>
         </div>
 
+        {/* ── Main Grid ── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px', alignItems: 'start' }}>
-          {/* Main content */}
-          <div>
+
+          {/* Left: Details */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Image */}
             {request.imageUrl && (
               <img
@@ -183,7 +195,7 @@ export default function RequestDetail() {
             <div className="card card-flat">
               <div className="detail-field">
                 <div className="detail-field-label">
-                  <Tag size={12} style={{ display: 'inline', marginRight: 4 }} />
+                  <Tag size={12} style={{ display: 'inline', marginRight: 5 }} />
                   Description
                 </div>
                 <div className="detail-field-value">{request.description}</div>
@@ -191,7 +203,7 @@ export default function RequestDetail() {
 
               <div className="detail-field">
                 <div className="detail-field-label">
-                  <MapPin size={12} style={{ display: 'inline', marginRight: 4 }} />
+                  <MapPin size={12} style={{ display: 'inline', marginRight: 5 }} />
                   Service Address
                 </div>
                 <div className="detail-field-value">{request.address}</div>
@@ -200,7 +212,7 @@ export default function RequestDetail() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0' }}>
                 <div className="detail-field" style={{ paddingRight: '20px' }}>
                   <div className="detail-field-label">
-                    <Calendar size={12} style={{ display: 'inline', marginRight: 4 }} />
+                    <Calendar size={12} style={{ display: 'inline', marginRight: 5 }} />
                     Preferred Time
                   </div>
                   <div className="detail-field-value">
@@ -212,7 +224,7 @@ export default function RequestDetail() {
                 </div>
                 <div className="detail-field" style={{ paddingLeft: '20px', borderLeft: '1px solid var(--color-border)' }}>
                   <div className="detail-field-label">
-                    <Clock size={12} style={{ display: 'inline', marginRight: 4 }} />
+                    <Clock size={12} style={{ display: 'inline', marginRight: 5 }} />
                     Created On
                   </div>
                   <div className="detail-field-value">
@@ -226,46 +238,47 @@ export default function RequestDetail() {
             </div>
           </div>
 
-          {/* Sidebar: Status management */}
-          <div>
+          {/* Right: Status Management */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div className="card card-flat">
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '20px', letterSpacing: '-0.01em' }}>
                 Status Management
               </h3>
 
-              {/* Progress stepper */}
+              {/* Progress stepper — vertical */}
               <div style={{ marginBottom: '24px' }}>
                 {['pending', 'in_progress', 'completed'].map((s, i) => {
                   const isActive = request.status === s;
                   const isDone = stepIndex > i && request.status !== 'cancelled';
                   return (
-                    <div key={s} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', paddingBottom: i < 2 ? '16px' : 0, position: 'relative' }}>
+                    <div key={s} style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', paddingBottom: i < 2 ? '20px' : 0, position: 'relative' }}>
                       {i < 2 && (
                         <div style={{
-                          position: 'absolute', left: 15, top: 32, bottom: 0, width: 2,
+                          position: 'absolute', left: 15, top: 34, bottom: 0, width: 2, borderRadius: '2px',
                           background: isDone ? 'var(--color-success)' : 'var(--color-border)',
                         }} />
                       )}
                       <div style={{
                         width: 32, height: 32, borderRadius: '50%', flexShrink: 0, zIndex: 1,
-                        background: isActive ? STATUS_COLORS[s] : isDone ? 'var(--color-success)' : 'var(--color-bg-2)',
+                        background: isActive ? STATUS_COLORS[s] : isDone ? 'var(--color-success)' : 'rgba(255,255,255,0.04)',
                         border: `2px solid ${isActive ? STATUS_COLORS[s] : isDone ? 'var(--color-success)' : 'var(--color-border)'}`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: isActive || isDone ? 'white' : 'var(--color-text-dim)',
-                        fontSize: '0.75rem', fontWeight: 700,
-                        boxShadow: isActive ? `0 0 12px ${STATUS_COLORS[s]}66` : 'none',
+                        fontSize: '0.75rem', fontWeight: 800,
+                        boxShadow: isActive ? `0 0 14px ${STATUS_COLORS[s]}60` : 'none',
+                        transition: 'all 0.3s ease',
                       }}>
                         {isDone ? <CheckCircle2 size={14} /> : i + 1}
                       </div>
-                      <div style={{ paddingTop: '4px' }}>
+                      <div style={{ paddingTop: '5px' }}>
                         <div style={{
-                          fontSize: '0.875rem', fontWeight: 600,
+                          fontSize: '0.875rem', fontWeight: 700,
                           color: isActive ? STATUS_COLORS[s] : isDone ? 'var(--color-success)' : 'var(--color-text-dim)',
                         }}>
                           {STATUS_LABELS[s]}
                         </div>
                         {isActive && (
-                          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-dim)', marginTop: '2px' }}>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--color-text-dim)', marginTop: '2px' }}>
                             Current status
                           </div>
                         )}
@@ -274,22 +287,25 @@ export default function RequestDetail() {
                   );
                 })}
 
+                {/* Cancelled indicator */}
                 {request.status === 'cancelled' && (
                   <div style={{
-                    display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px',
-                    padding: '10px 12px', background: 'rgba(239,68,68,0.1)',
-                    border: '1px solid rgba(239,68,68,0.25)', borderRadius: 'var(--radius-md)',
+                    display: 'flex', alignItems: 'center', gap: '10px', marginTop: '14px',
+                    padding: '10px 14px',
+                    background: 'rgba(248,113,113,0.08)',
+                    border: '1px solid rgba(248,113,113,0.25)',
+                    borderRadius: 'var(--radius-md)',
                   }}>
-                    <X size={14} style={{ color: '#ef4444' }} />
-                    <span style={{ fontSize: '0.875rem', color: '#f87171', fontWeight: 600 }}>Cancelled</span>
+                    <X size={14} style={{ color: '#f87171' }} />
+                    <span style={{ fontSize: '0.875rem', color: '#fca5a5', fontWeight: 700 }}>Cancelled</span>
                   </div>
                 )}
               </div>
 
-              {/* Action buttons */}
+              {/* Transition buttons */}
               {allowed.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>
                     Move to:
                   </div>
                   {allowed.map((s) => (
@@ -301,7 +317,7 @@ export default function RequestDetail() {
                       id={`status-${s}-btn`}
                       style={{
                         justifyContent: 'flex-start',
-                        borderColor: STATUS_COLORS[s] + '44',
+                        borderColor: `${STATUS_COLORS[s]}44`,
                         color: STATUS_COLORS[s],
                       }}
                     >
@@ -317,21 +333,24 @@ export default function RequestDetail() {
                 </div>
               )}
 
+              {/* Final state notice */}
               {isFinal && (
                 <div style={{
-                  padding: '12px 14px', background: 'rgba(59,130,246,0.08)',
-                  border: '1px solid rgba(59,130,246,0.2)', borderRadius: 'var(--radius-md)',
+                  padding: '12px 14px',
+                  background: 'rgba(16,185,129,0.06)',
+                  border: '1px solid rgba(52,211,153,0.15)',
+                  borderRadius: 'var(--radius-md)',
                   fontSize: '0.8125rem', color: 'var(--color-text-muted)',
                   display: 'flex', gap: '8px', alignItems: 'center',
                 }}>
-                  <AlertTriangle size={14} style={{ color: 'var(--color-primary)', flexShrink: 0 }} />
+                  <Sparkles size={14} style={{ color: 'var(--color-primary)', flexShrink: 0 }} />
                   This request is {request.status} and cannot be changed.
                 </div>
               )}
             </div>
 
             {/* Last updated */}
-            <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-text-dim)' }}>
+            <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--color-text-dim)' }}>
               Last updated {new Date(request.updatedAt).toLocaleString('en-IN', {
                 month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
               })}
@@ -347,7 +366,9 @@ export default function RequestDetail() {
         title="Delete Request"
         footer={
           <>
-            <button className="btn btn-secondary" onClick={() => setDeleteModal(false)} id="cancel-delete-detail-btn">Cancel</button>
+            <button className="btn btn-secondary" onClick={() => setDeleteModal(false)} id="cancel-delete-detail-btn">
+              Cancel
+            </button>
             <button className="btn btn-danger" onClick={handleDelete} disabled={deleting} id="confirm-delete-detail-btn">
               {deleting ? <Loader size="sm" /> : <Trash2 size={14} />}
               Delete Permanently

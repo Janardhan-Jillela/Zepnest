@@ -2,19 +2,23 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createRequest, uploadImage } from '../api/requests';
 import Loader from '../components/Loader';
-import { ArrowLeft, ArrowRight, CheckCircle2, Upload, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Upload, X, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const CATEGORIES = [
-  { value: 'cleaning', label: 'Cleaning', icon: '🧹' },
-  { value: 'plumbing', label: 'Plumbing', icon: '🔧' },
-  { value: 'electrical', label: 'Electrical', icon: '⚡' },
-  { value: 'carpentry', label: 'Carpentry', icon: '🪚' },
-  { value: 'painting', label: 'Painting', icon: '🎨' },
-  { value: 'other', label: 'Other', icon: '✨' },
+  { value: 'cleaning', label: 'Cleaning', icon: '🧹', cls: 'cat-cleaning' },
+  { value: 'plumbing', label: 'Plumbing', icon: '🔧', cls: 'cat-plumbing' },
+  { value: 'electrical', label: 'Electrical', icon: '⚡', cls: 'cat-electrical' },
+  { value: 'carpentry', label: 'Carpentry', icon: '🪚', cls: 'cat-carpentry' },
+  { value: 'painting', label: 'Painting', icon: '🎨', cls: 'cat-painting' },
+  { value: 'other', label: 'Other', icon: '✨', cls: 'cat-other' },
 ];
 
-const STEPS = ['Details', 'Location & Time', 'Review'];
+const STEPS = [
+  { label: 'Details', desc: 'What do you need?' },
+  { label: 'Location & Time', desc: 'Where and when?' },
+  { label: 'Review', desc: 'Confirm & submit' },
+];
 
 const defaultForm = {
   title: '', description: '', category: 'cleaning',
@@ -97,14 +101,16 @@ export default function CreateRequest() {
     }
   };
 
-  // Min datetime for the input (now + 1 hour)
   const minDateTime = new Date(Date.now() + 3600000).toISOString().slice(0, 16);
+
+  const selectedCat = CATEGORIES.find(c => c.value === form.category);
 
   return (
     <div className="page-wrapper animate-fade">
-      <div className="container" style={{ padding: '40px 24px', maxWidth: 760 }}>
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+      <div className="container" style={{ padding: '44px 24px', maxWidth: 780 }}>
+
+        {/* ── Header ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '36px' }}>
           <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)} id="back-btn">
             <ArrowLeft size={16} />
             Back
@@ -115,51 +121,75 @@ export default function CreateRequest() {
           </div>
         </div>
 
-        {/* Stepper */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '40px', gap: 0 }}>
-          {STEPS.map((label, i) => (
+        {/* ── Step Progress Bar ── */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '44px' }}>
+          {STEPS.map(({ label }, i) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', flex: i < STEPS.length - 1 ? 1 : 'none' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                 <div
                   style={{
-                    width: 36, height: 36, borderRadius: '50%',
-                    background: i < step ? 'var(--color-success)' : i === step ? 'var(--color-primary)' : 'var(--color-bg-2)',
-                    border: `2px solid ${i < step ? 'var(--color-success)' : i === step ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                    width: 38, height: 38, borderRadius: '50%',
+                    background: i < step
+                      ? 'var(--color-success)'
+                      : i === step
+                        ? 'var(--color-primary)'
+                        : 'rgba(255,255,255,0.04)',
+                    border: `2px solid ${i < step
+                      ? 'var(--color-success)'
+                      : i === step
+                        ? 'var(--color-primary)'
+                        : 'var(--color-border)'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: i <= step ? 'white' : 'var(--color-text-dim)',
-                    fontWeight: 700, fontSize: '0.875rem',
-                    boxShadow: i === step ? '0 0 12px rgba(59,130,246,0.5)' : 'none',
+                    fontWeight: 800, fontSize: '0.875rem',
+                    boxShadow: i === step ? '0 0 16px rgba(16,185,129,0.4)' : 'none',
                     transition: 'all 0.3s ease',
                   }}
                 >
                   {i < step ? <CheckCircle2 size={16} /> : i + 1}
                 </div>
                 <span style={{
-                  fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap',
-                  color: i === step ? 'var(--color-primary)' : i < step ? 'var(--color-success)' : 'var(--color-text-dim)',
+                  fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap',
+                  color: i === step
+                    ? 'var(--color-primary-light)'
+                    : i < step
+                      ? 'var(--color-success)'
+                      : 'var(--color-text-dim)',
+                  textTransform: 'uppercase', letterSpacing: '0.04em',
                 }}>
                   {label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
                 <div style={{
-                  flex: 1, height: 2, margin: '0 8px', marginBottom: '22px',
-                  background: i < step ? 'var(--color-success)' : 'var(--color-border)',
-                  transition: 'background 0.3s ease',
+                  flex: 1, height: 2, margin: '0 10px', marginBottom: '22px',
+                  background: i < step
+                    ? 'linear-gradient(90deg, var(--color-success), var(--color-primary))'
+                    : 'var(--color-border)',
+                  borderRadius: '2px',
+                  transition: 'background 0.4s ease',
                 }} />
               )}
             </div>
           ))}
         </div>
 
-        {/* Card */}
-        <div className="card card-flat" style={{ padding: '36px' }}>
+        {/* ── Main Card ── */}
+        <div className="card" style={{ padding: '36px' }}>
 
           {/* STEP 0: Details */}
           {step === 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '4px' }}>Request Details</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              <div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '4px', letterSpacing: '-0.01em' }}>
+                  Request Details
+                </h2>
+                <p style={{ color: 'var(--color-text-dim)', fontSize: '0.875rem' }}>
+                  Describe what you need help with.
+                </p>
+              </div>
 
+              {/* Title */}
               <div className="form-group">
                 <label className="form-label" htmlFor="title-input">Request Title *</label>
                 <input
@@ -175,10 +205,11 @@ export default function CreateRequest() {
                 {errors.title && <span className="form-error">⚠ {errors.title}</span>}
               </div>
 
+              {/* Category */}
               <div className="form-group">
                 <label className="form-label">Category *</label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                  {CATEGORIES.map(({ value, label, icon }) => (
+                  {CATEGORIES.map(({ value, label, icon, cls }) => (
                     <button
                       key={value}
                       type="button"
@@ -186,13 +217,14 @@ export default function CreateRequest() {
                       onClick={() => { setForm((f) => ({ ...f, category: value })); setErrors((e) => ({ ...e, category: '' })); }}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '10px',
-                        padding: '12px 14px',
-                        background: form.category === value ? 'rgba(59,130,246,0.15)' : 'var(--color-bg-2)',
+                        padding: '13px 16px',
+                        background: form.category === value ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.03)',
                         border: `2px solid ${form.category === value ? 'var(--color-primary)' : 'var(--color-border)'}`,
                         borderRadius: 'var(--radius-md)',
-                        color: form.category === value ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                        fontWeight: 600, fontSize: '0.875rem',
-                        cursor: 'pointer', transition: 'all 0.15s ease',
+                        color: form.category === value ? 'var(--color-primary-light)' : 'var(--color-text-muted)',
+                        fontWeight: 700, fontSize: '0.875rem',
+                        cursor: 'pointer', transition: 'all 0.18s ease',
+                        boxShadow: form.category === value ? '0 0 12px rgba(16,185,129,0.15)' : 'none',
                       }}
                     >
                       <span style={{ fontSize: '20px' }}>{icon}</span>
@@ -203,6 +235,7 @@ export default function CreateRequest() {
                 {errors.category && <span className="form-error">⚠ {errors.category}</span>}
               </div>
 
+              {/* Description */}
               <div className="form-group">
                 <label className="form-label" htmlFor="description-input">Description *</label>
                 <textarea
@@ -219,22 +252,25 @@ export default function CreateRequest() {
 
               {/* Image upload */}
               <div className="form-group">
-                <label className="form-label">Reference Photo (optional)</label>
+                <label className="form-label">Reference Photo <span style={{ fontWeight: 400, color: 'var(--color-text-dim)' }}>(optional)</span></label>
                 {imagePreview ? (
-                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
                     <img
                       src={imagePreview}
                       alt="Preview"
-                      style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
+                      style={{
+                        width: '100%', maxHeight: 200, objectFit: 'cover',
+                        borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border-light)',
+                      }}
                     />
                     <button
                       type="button"
                       onClick={() => { setImageFile(null); setImagePreview(null); }}
                       id="remove-image-btn"
                       style={{
-                        position: 'absolute', top: 8, right: 8,
-                        background: 'rgba(0,0,0,0.7)', border: 'none',
-                        borderRadius: '50%', width: 28, height: 28,
+                        position: 'absolute', top: 10, right: 10,
+                        background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '50%', width: 30, height: 30,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: 'white', cursor: 'pointer',
                       }}
@@ -246,17 +282,19 @@ export default function CreateRequest() {
                   <label
                     htmlFor="image-input"
                     style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-                      padding: '28px', border: '2px dashed var(--color-border)',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+                      padding: '32px',
+                      border: '2px dashed var(--color-border)',
                       borderRadius: 'var(--radius-md)', cursor: 'pointer',
-                      transition: 'border-color 0.2s ease',
+                      transition: 'all 0.2s ease',
                       color: 'var(--color-text-dim)',
+                      background: 'rgba(16,185,129,0.02)',
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-primary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.background = 'rgba(16,185,129,0.05)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.background = 'rgba(16,185,129,0.02)'; }}
                   >
-                    <Upload size={24} />
-                    <span style={{ fontSize: '0.875rem' }}>Click to upload image</span>
+                    <Upload size={26} style={{ color: 'var(--color-primary)' }} />
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Click to upload image</span>
                     <span style={{ fontSize: '0.75rem' }}>JPEG, PNG, WebP — max 5MB</span>
                     <input id="image-input" type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
                   </label>
@@ -267,8 +305,15 @@ export default function CreateRequest() {
 
           {/* STEP 1: Location & Time */}
           {step === 1 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '4px' }}>Location &amp; Schedule</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              <div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '4px', letterSpacing: '-0.01em' }}>
+                  Location & Schedule
+                </h2>
+                <p style={{ color: 'var(--color-text-dim)', fontSize: '0.875rem' }}>
+                  Where and when should the service be done?
+                </p>
+              </div>
 
               <div className="form-group">
                 <label className="form-label" htmlFor="address-input">Service Address *</label>
@@ -285,7 +330,7 @@ export default function CreateRequest() {
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="time-input">Preferred Date &amp; Time *</label>
+                <label className="form-label" htmlFor="time-input">Preferred Date & Time *</label>
                 <input
                   id="time-input"
                   name="preferredTime"
@@ -297,9 +342,7 @@ export default function CreateRequest() {
                   style={{ colorScheme: 'dark' }}
                 />
                 {errors.preferredTime && <span className="form-error">⚠ {errors.preferredTime}</span>}
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-dim)' }}>
-                  We'll confirm availability and contact you within 2 hours.
-                </span>
+                <span className="form-hint">We'll confirm availability and contact you within 2 hours.</span>
               </div>
             </div>
           )}
@@ -307,51 +350,79 @@ export default function CreateRequest() {
           {/* STEP 2: Review */}
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '4px' }}>Review &amp; Submit</h2>
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
-                Please review your request before submitting.
-              </p>
+              <div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '4px', letterSpacing: '-0.01em' }}>
+                  Review & Submit
+                </h2>
+                <p style={{ color: 'var(--color-text-dim)', fontSize: '0.875rem' }}>
+                  Please review your request before submitting.
+                </p>
+              </div>
 
               {imagePreview && (
-                <img src={imagePreview} alt="Reference" style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }} />
+                <img
+                  src={imagePreview}
+                  alt="Reference"
+                  style={{
+                    width: '100%', maxHeight: 180, objectFit: 'cover',
+                    borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)',
+                  }}
+                />
               )}
 
-              {[
-                { label: 'Title', value: form.title },
-                { label: 'Category', value: `${CATEGORIES.find(c => c.value === form.category)?.icon} ${form.category}` },
-                { label: 'Description', value: form.description },
-                { label: 'Address', value: form.address },
-                {
-                  label: 'Preferred Time',
-                  value: new Date(form.preferredTime).toLocaleString('en-IN', {
-                    weekday: 'long', year: 'numeric', month: 'long',
-                    day: 'numeric', hour: '2-digit', minute: '2-digit',
-                  }),
-                },
-              ].map(({ label, value }) => (
-                <div key={label} className="detail-field">
-                  <div className="detail-field-label">{label}</div>
-                  <div className="detail-field-value" style={{ textTransform: label === 'Category' ? 'capitalize' : 'none' }}>
-                    {value}
+              {/* Summary fields */}
+              <div className="card card-flat" style={{ padding: '0' }}>
+                {[
+                  { label: 'Title', value: form.title },
+                  {
+                    label: 'Category',
+                    value: (
+                      <span className={`category-chip ${selectedCat?.cls || ''}`}>
+                        {selectedCat?.icon} {form.category}
+                      </span>
+                    ),
+                  },
+                  { label: 'Description', value: form.description },
+                  { label: 'Address', value: form.address },
+                  {
+                    label: 'Preferred Time',
+                    value: new Date(form.preferredTime).toLocaleString('en-IN', {
+                      weekday: 'long', year: 'numeric', month: 'long',
+                      day: 'numeric', hour: '2-digit', minute: '2-digit',
+                    }),
+                  },
+                ].map(({ label, value }) => (
+                  <div key={label} className="detail-field" style={{ padding: 'var(--space-4) var(--space-6)' }}>
+                    <div className="detail-field-label">{label}</div>
+                    <div className="detail-field-value">{value}</div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
+              {/* Confirmation notice */}
               <div
                 style={{
-                  background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)',
-                  borderRadius: 'var(--radius-md)', padding: '14px 16px',
-                  fontSize: '0.875rem', color: '#34d399', display: 'flex', gap: '10px', alignItems: 'center',
+                  background: 'rgba(16,185,129,0.08)',
+                  border: '1px solid rgba(52,211,153,0.25)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '14px 18px',
+                  fontSize: '0.875rem',
+                  color: 'var(--color-primary-light)',
+                  display: 'flex', gap: '10px', alignItems: 'center',
                 }}
               >
-                <CheckCircle2 size={16} />
-                Your request will be created with status <strong>Pending</strong>.
+                <Sparkles size={16} />
+                Your request will be created with status <strong style={{ color: 'var(--color-primary-light)' }}>Pending</strong>.
               </div>
             </div>
           )}
 
-          {/* Navigation buttons */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
+          {/* ── Navigation Buttons ── */}
+          <div style={{
+            display: 'flex', justifyContent: 'space-between',
+            marginTop: '36px', paddingTop: '24px',
+            borderTop: '1px solid var(--color-border)',
+          }}>
             <button
               className="btn btn-secondary"
               onClick={step === 0 ? () => navigate(-1) : prevStep}
@@ -360,9 +431,10 @@ export default function CreateRequest() {
               <ArrowLeft size={14} />
               {step === 0 ? 'Cancel' : 'Back'}
             </button>
+
             {step < STEPS.length - 1 ? (
               <button className="btn btn-primary" onClick={nextStep} id="next-btn">
-                Next: {STEPS[step + 1]}
+                Next: {STEPS[step + 1].label}
                 <ArrowRight size={14} />
               </button>
             ) : (
@@ -371,7 +443,7 @@ export default function CreateRequest() {
                 onClick={handleSubmit}
                 disabled={loading}
                 id="submit-request-btn"
-                style={{ minWidth: 160 }}
+                style={{ minWidth: 170 }}
               >
                 {loading ? <Loader size="sm" /> : <CheckCircle2 size={14} />}
                 Submit Request

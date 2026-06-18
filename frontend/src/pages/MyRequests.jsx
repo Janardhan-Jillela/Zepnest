@@ -16,6 +16,11 @@ const CATEGORY_ICONS = {
   carpentry: '🪚', painting: '🎨', other: '✨',
 };
 
+const CAT_CLASS = {
+  cleaning: 'cat-cleaning', plumbing: 'cat-plumbing', electrical: 'cat-electrical',
+  carpentry: 'cat-carpentry', painting: 'cat-painting', other: 'cat-other',
+};
+
 const CATEGORIES = ['cleaning', 'plumbing', 'electrical', 'carpentry', 'painting', 'other'];
 const STATUSES = ['pending', 'in_progress', 'completed', 'cancelled'];
 
@@ -200,13 +205,19 @@ export default function MyRequests() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {requests.map((req) => (
               <div key={req.id} className="request-card">
-                <span style={{ fontSize: '32px', flexShrink: 0 }}>
+                <div style={{
+                  width: 46, height: 46, borderRadius: 12,
+                  background: 'rgba(16,185,129,0.08)',
+                  border: '1px solid rgba(52,211,153,0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '22px', flexShrink: 0,
+                }}>
                   {CATEGORY_ICONS[req.category] || '✨'}
-                </span>
+                </div>
                 <div className="request-card-body">
                   <div className="request-card-title">{req.title}</div>
                   <div className="request-card-meta">
-                    <span className="category-chip">{req.category}</span>
+                    <span className={`category-chip ${CAT_CLASS[req.category] || ''}`}>{req.category}</span>
                     <span className="request-card-meta-item">
                       <Clock size={12} />
                       {new Date(req.preferredTime).toLocaleDateString('en-IN', {
